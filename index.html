@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Историческая Карта Древнерусских Княжеств</title>
+    <!-- Подключение шрифта -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background-color: #f5f5dc;
+            margin: 0;
+            padding: 0;
+            overflow-x: auto;
+            overflow-y: auto;
+        }
+
+        .map-container {
+            position: relative;
+            width: 1920px;
+            height: 1080px;
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+            overflow: visible;
+        }
+
+        /* Стили для маркеров */
+        .marker {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .square-marker {
+            width: 30px;
+            height: 30px;
+            border-radius: 0;
+            background-color: transparent;
+            border: 2px solid transparent;
+        }
+
+        .circle-marker {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 2px solid transparent;
+        }
+
+        .hexagon-marker {
+            width: 30px;
+            height: 30px;
+            background-color: transparent;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            border: 2px solid transparent;
+        }
+
+        .smolensk {
+            border-color: rgba(255, 165, 0, 0.3);
+        }
+
+        .chernigov {
+            border-color: rgba(147, 112, 219, 0.3);
+        }
+
+        .marker:hover {
+            background-color: rgba(255, 165, 0, 0.2);
+        }
+
+        .chernigov:hover {
+            background-color: rgba(147, 112, 219, 0.2);
+        }
+
+        /* Модальное окно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9IiNmNWY1ZGMiIC8+PC9zdmc+') no-repeat center/cover;
+            border: 8px solid #8B4513;
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 800px;
+            max-height: 600px;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #8B4513;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .modal-image {
+            width: 200px;
+            height: auto;
+            border: 3px solid #8B4513;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+
+        .modal-text {
+            flex: 1;
+            min-width: 300px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 2px solid #8B4513;
+            border-radius: 10px;
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .modal-text h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #8B4513;
+            text-align: center;
+            border-bottom: 2px solid #8B4513;
+            padding-bottom: 5px;
+        }
+
+        .modal-text p {
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .modal-text h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="map-container">
+        <!-- Маркеры для Смоленской династии -->
+        <div class="marker square-marker smolensk" style="left: 260px; top: 180px;" data-name="Полоцк" data-type="столица" data-stars="★★"></div>
+        <div class="marker square-marker smolensk" style="left: 180px; top: 320px;" data-name="Изяславль" data-type="город" data-stars="★"></div>
+        <div class="marker circle-marker smolensk" style="left: 200px; top: 400px;" data-name="Лукомль" data-type="острог"></div>
+        <div class="marker square-marker smolensk" style="left: 280px; top: 450px;" data-name="Друцк" data-type="город" data-stars="★"></div>
+        <div class="marker circle-marker smolensk" style="left: 320px; top: 550px;" data-name="Минск" data-type="острог"></div>
+        <div class="marker square-marker smolensk" style="left: 380px; top: 300px;" data-name="Витебск" data-type="город" data-stars="★"></div>
+        <div class="marker circle-marker smolensk" style="left: 400px; top: 400px;" data-name="Орша" data-type="острог"></div>
+        <div class="marker square-marker smolensk" style="left: 500px; top: 380px;" data-name="Смоленск" data-type="столица" data-stars="★★★"></div>
+        <div class="marker hexagon-marker smolensk" style="left: 150px; top: 120px;" data-name="Ятваги" data-type="племя"></div>
+        <div class="marker hexagon-marker smolensk" style="left: 600px; top: 150px;" data-name="Весь" data-type="племя"></div>
+        <div class="marker square-marker smolensk" style="left: 650px; top: 300px;" data-name="Вязьма" data-type="город" data-stars="★"></div>
+        <div class="marker square-marker smolensk" style="left: 620px; top: 450px;" data-name="Козельск" data-type="город" data-stars="★"></div>
+        <div class="marker square-marker smolensk" style="left: 600px; top: 550px;" data-name="Ростиславль" data-type="город" data-stars="★"></div>
+
+        <!-- Маркеры для Черниговской династии -->
+        <div class="marker square-marker chernigov" style="left: 800px; top: 500px;" data-name="Пинск" data-type="город" data-stars="★"></div>
+        <div class="marker square-marker chernigov" style="left: 750px; top: 600px;" data-name="Туров" data-type="столица" data-stars="★★"></div>
+        <div class="marker circle-marker chernigov" style="left: 700px; top: 700px;" data-name="Овруч" data-type="острог"></div>
+        <div class="marker circle-marker chernigov" style="left: 680px; top: 800px;" data-name="Дорогуж" data-type="острог"></div>
+        <div class="marker square-marker chernigov" style="left: 850px; top: 550px;" data-name="Стародуб" data-type="город" data-stars="★"></div>
+        <div class="marker square-marker chernigov" style="left: 900px; top: 650px;" data-name="Гомель" data-type="город" data-stars="★"></div>
+        <div class="marker square-marker chernigov" style="left: 950px; top: 750px;" data-name="Новгород Северский" data-type="столица" data-stars="★★"></div>
+        <div class="marker square-marker chernigov" style="left: 1000px; top: 850px;" data-name="Чернигов" data-type="столица" data-stars="★★★"></div>
+        <div class="marker square-marker chernigov" style="left: 1050px; top: 600px;" data-name="Вышгород" data-type="город" data-stars="★"></div>
+        <div class="marker circle-marker chernigov" style="left: 1100px; top: 700px;" data-name="Путивль" data-type="острог"></div>
+        <div class="marker square-marker chernigov" style="left: 1150px; top: 800px;" data-name="Трубчевск" data-type="город" data-stars="★"></div>
+        <div class="marker square-marker chernigov" style="left: 1200px; top: 900px;" data-name="Карачев" data-type="город" data-stars="★"></div>
+        <div class="marker circle-marker chernigov" style="left: 1250px; top: 1000px;" data-name="Курск" data-type="острог"></div>
+    </div>
+
+    <!-- Шаблон модального окна -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <img id="modalImage" class="modal-image" src="city.jpg" alt="Город">
+            <div class="modal-text">
+                <h2 id="modalTitle">Заголовок</h2>
+                <p id="modalDescription">Описание</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Данные о локациях
+        const locations = {
+            "Полоцк": {
+                type: "столица",
+                stars: "★★",
+                description: "★★ Полоцк.\nСтолица Полоцкого княжества.\nПринадлежит Смоленской династии."
+            },
+            "Изяславль": {
+                type: "город",
+                stars: "★",
+                description: "★ Изяславль.\nСтол удельного княжества Изяславского.\nПринадлежит Смоленской династии."
+            },
+            "Лукомль": {
+                type: "острог",
+                description: "Лукомль.\nОстрог Смоленской династии."
+            },
+            "Друцк": {
+                type: "город",
+                stars: "★",
+                description: "★ Друцк.\nСтол удельного княжества Друцкого.\nПринадлежит Смоленской династии."
+            },
+            "Минск": {
+                type: "острог",
+                description: "Минск.\nОстрог Смоленской династии."
+            },
+            "Витебск": {
+                type: "город",
+                stars: "★",
+                description: "★ Витебск.\nСтол удельного княжества Витебского.\nПринадлежит Смоленской династии."
+            },
+            "Орша": {
+                type: "острог",
+                description: "Орша.\nОстрог Смоленской династии."
+            },
+            "Смоленск": {
+                type: "столица",
+                stars: "★★★",
+                description: "★★★ Смоленск.\nСтолица Великого княжества Смоленского."
+            },
+            "Ятваги": {
+                type: "племя",
+                description: "Ятваги.\nЗемли балтского племени.\nПодчиняются князьям Смоленской династии."
+            },
+            "Весь": {
+                type: "племя",
+                description: "Весь.\nЗемли финно-угорского племени.\nПодчиняются князьям Смоленской династии."
+            },
+            "Вязьма": {
+                type: "город",
+                stars: "★",
+                description: "★ Вязьма.\nСтол удельного княжества Вяземского.\nПринадлежит Смоленской династии."
+            },
+            "Козельск": {
+                type: "город",
+                stars: "★",
+                description: "★ Козельск.\nСтол удельного княжества Козельского.\nПринадлежит Смоленской династии."
+            },
+            "Ростиславль": {
+                type: "город",
+                stars: "★",
+                description: "★ Ростиславль.\nСтол удельного княжества Ростиславльского.\nПринадлежит Смоленской династии."
+            },
+            "Пинск": {
+                type: "город",
+                stars: "★",
+                description: "★ Пинск.\nСтол удельного княжества Пинского.\nПринадлежит Черниговской династии."
+            },
+            "Туров": {
+                type: "столица",
+                stars: "★★",
+                description: "★★ Туров.\nСтолица Туровского княжества.\nПринадлежит Черниговской династии."
+            },
+            "Овруч": {
+                type: "острог",
+                description: "Овруч.\nОстрог Черниговской династии."
+            },
+            "Дорогуж": {
+                type: "острог",
+                description: "Дорогуж.\nОстрог Черниговской династии."
+            },
+            "Стародуб": {
+                type: "город",
+                stars: "★",
+                description: "★ Стародуб.\nСтол удельного княжества Стародубского.\nПринадлежит Черниговской династии."
+            },
+            "Гомель": {
+                type: "город",
+                stars: "★",
+                description: "★ Гомель.\nСтол удельного княжества Гомельского.\nПринадлежит Черниговской династии."
+            },
+            "Новгород Северский": {
+                type: "столица",
+                stars: "★★",
+                description: "★★ Новгород Северский.\nСтолица Новгород-Северского княжества.\nПринадлежит Черниговской династии."
+            },
+            "Чернигов": {
+                type: "столица",
+                stars: "★★★",
+                description: "★★★ Чернигов.\nСтолица Великого княжества Черниговского."
+            },
+            "Вышгород": {
+                type: "город",
+                stars: "★",
+                description: "★ Вышгород.\nСтол удельного княжества Вышгородского.\nПринадлежит Черниговской династии."
+            },
+            "Путивль": {
+                type: "острог",
+                description: "Путивль.\nОстрог Черниговской династии."
+            },
+            "Трубчевск": {
+                type: "город",
+                stars: "★",
+                description: "★ Трубчевск.\nСтол удельного княжества Трубчевского.\nПринадлежит Черниговской династии."
+            },
+            "Карачев": {
+                type: "город",
+                stars: "★",
+                description: "★ Карачев.\nСтол удельного княжества Карачевского.\nПринадлежит Черниговской династии."
+            },
+            "Курск": {
+                type: "острог",
+                description: "Курск.\nОстрог Черниговской династии."
+            }
+        };
+
+        // Получаем элементы
+        const modal = document.getElementById('modal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalImage = document.getElementById('modalImage');
+        const closeModal = document.querySelector('.modal-close');
+
+        // Обработчик клика на маркеры
+        document.querySelectorAll('.marker').forEach(marker => {
+            marker.addEventListener('click', function() {
+                const name = this.getAttribute('data-name');
+                const locationData = locations[name];
+                
+                if (locationData) {
+                    // Устанавливаем заголовок
+                    let title = name;
+                    if (locationData.stars) {
+                        title = `${locationData.stars} ${name}`;
+                    }
+                    modalTitle.textContent = title;
+                    
+                    // Устанавливаем описание
+                    modalDescription.textContent = locationData.description;
+                    
+                    // Показываем или скрываем изображение в зависимости от типа локации
+                    if (locationData.type === 'город' || locationData.type === 'столица') {
+                        modalImage.style.display = 'block';
+                    } else {
+                        modalImage.style.display = 'none';
+                    }
+                    
+                    // Открываем модальное окно
+                    modal.style.display = 'flex';
+                }
+            });
+        });
+
+        // Обработчик закрытия модального окна
+        closeModal.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Закрытие модального окна при клике вне контента
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Предотвращаем закрытие при клике внутри контента
+        document.querySelector('.modal-content').addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    </script>
+</body>
+</html>
